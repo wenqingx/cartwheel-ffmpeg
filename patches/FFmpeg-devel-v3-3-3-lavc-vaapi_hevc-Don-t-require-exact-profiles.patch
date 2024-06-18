@@ -1,0 +1,356 @@
+From patchwork Wed Jun  5 19:59:44 2024
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Mark Thompson <sw@jkqxz.net>
+X-Patchwork-Id: 49598
+Delivered-To: ffmpegpatchwork2@gmail.com
+Received: by 2002:a59:ce4e:0:b0:478:35e:29dc with SMTP id n14csp21843vqx;
+        Wed, 5 Jun 2024 13:00:03 -0700 (PDT)
+X-Forwarded-Encrypted: i=2;
+ AJvYcCWBHGHBNTVFdEa9VmXzh2GXKD67s0iqgiB7sQ1Kd6YMkGKC6xhFFkwHc5XFuUET/rsIJQEyv2WCzbGvcaVvAMY+jVDKiD2dEDO97w==
+X-Google-Smtp-Source: 
+ AGHT+IESTtvzQufEwkxYUowjndj6vdWcQTyHoL7a0ejmsBrt/TmH+DLiG+OffCBDIViq0sJciVvt
+X-Received: by 2002:a50:9518:0:b0:57a:30db:d9ce with SMTP id
+ 4fb4d7f45d1cf-57a8bcadc93mr2191335a12.3.1717617602934;
+        Wed, 05 Jun 2024 13:00:02 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1717617602; cv=none;
+        d=google.com; s=arc-20160816;
+        b=wfxACjqC/b5g46slYe/W6rlE/H5w8nLoL4FB+gyb+e6AlnSR6sHL7LftCmeVgYw1CZ
+         jT0bFiwNyWKm9BK4yODcgyUu5tUCY3K9/2408xERKIPPmaqPPkQVC611OK4pxnE3Bqfi
+         zpwBwai0IdQ5c58LswZrbvUuD+By7JXlOnCfevAV7jSgTKk984ZSWPzxghxkhBuR1RAG
+         Ld6xZO9H4EYeX6dNZQb2d0ZvbiyOv6eVt5raU9nhV+BtW778szelPQSAvcrjf0il22O7
+         E+8ru021C8sXFD2zQofSsaq2rgiLceclC9mw7j5BF+WbXWlSKsbjKTIlZ3DbPlvUBKJ5
+         BkzA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=sender:errors-to:content-transfer-encoding:reply-to:list-subscribe
+         :list-help:list-post:list-archive:list-unsubscribe:list-id
+         :precedence:subject:mime-version:references:in-reply-to:message-id
+         :date:to:from:dkim-signature:delivered-to;
+        bh=0yflivlUqyyoQ8z0PvgxVMGWl6lyWo9HoCPd+fcwMf4=;
+        fh=YOA8vD9MJZuwZ71F/05pj6KdCjf6jQRmzLS+CATXUQk=;
+        b=EpQA+e9RH/Mgmf7ZmfklHNXYQzY5z5l3xMwPgW6cSyteBdPwV2npbY80o1zHm4+/e0
+         szE6WuTqzR3kkxh8pOSI9Ja79u3V0r3py7rAxWFuwdRLGzfX+6bFG+kP4Q6wJSFYVQxE
+         lMHW4e+SrtjHC1+0mQzQM6Hf3RdmCvSVmMwzKCLeL47bhFAalpt+6j8759aWsMHpVEAB
+         uuW6CNHwgbHDsbNo8Ov830mHaxeaho6sZ35tkT6eodvXy2j/qn/073kPo/h7gkwKqU74
+         tyQqHpTsTLZ5koTiVGFCFuUhJuPuMzYqsjROQX1dSgH4zGjIP6B+fHFn9t6aV08Oc0+4
+         t6wg==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=neutral (body hash did not verify)
+ header.i=@jkqxz-net.20230601.gappssmtp.com header.s=20230601
+ header.b=KKe62tme;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org
+Return-Path: <ffmpeg-devel-bounces@ffmpeg.org>
+Received: from ffbox0-bg.mplayerhq.hu (ffbox0-bg.ffmpeg.org. [79.124.17.100])
+        by mx.google.com with ESMTP id
+ 4fb4d7f45d1cf-57a31c62f33si6517554a12.294.2024.06.05.13.00.01;
+        Wed, 05 Jun 2024 13:00:02 -0700 (PDT)
+Received-SPF: pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender) client-ip=79.124.17.100;
+Authentication-Results: mx.google.com;
+       dkim=neutral (body hash did not verify)
+ header.i=@jkqxz-net.20230601.gappssmtp.com header.s=20230601
+ header.b=KKe62tme;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org
+Received: from [127.0.1.1] (localhost [127.0.0.1])
+	by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTP id 1244368D6E2;
+	Wed,  5 Jun 2024 22:59:41 +0300 (EEST)
+X-Original-To: ffmpeg-devel@ffmpeg.org
+Delivered-To: ffmpeg-devel@ffmpeg.org
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com
+ [209.85.128.45])
+ by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTPS id 4453B68D5F9
+ for <ffmpeg-devel@ffmpeg.org>; Wed,  5 Jun 2024 22:59:33 +0300 (EEST)
+Received: by mail-wm1-f45.google.com with SMTP id
+ 5b1f17b1804b1-4212b4eea2eso2449875e9.2
+ for <ffmpeg-devel@ffmpeg.org>; Wed, 05 Jun 2024 12:59:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=jkqxz-net.20230601.gappssmtp.com; s=20230601; t=1717617572; x=1718222372;
+ darn=ffmpeg.org;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
+ :reply-to; bh=S2gqsJbD6zdaBl5d/igOar152J/6V3l2z5gTGxyKy4E=;
+ b=KKe62tmenB6YaVpF38EYyrARtJOjQIQx1sH7cECMb/SUwyY+G2KWM25Kt7CWAlNVp4
+ tNQGoVX0GuxBrLEnmbfjpuR4zXG9FN9ahcgLJhe3n5DNOnkdBNUaKJ7RH/tBaB90J/lK
+ /D/RLklX3dC0ya2wA8S3YDRgPVL6l5MLUwfjWrto/uNXZINwhYpx+iFQutrP3AwfhN00
+ je+oP6rpjLAtjF29rnuSQ+G+pQYvfYn1ABsFIHeNY7UR2eTnbkOZ5gCGf91S+tJ1JuT/
+ MQt+vtjoohs1ASL1KHpRxfi16rvOGZjetYwRjhhKGnKiEKf4LPJMKwCAcfrGCV9mJqTZ
+ Xr6w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1717617572; x=1718222372;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=S2gqsJbD6zdaBl5d/igOar152J/6V3l2z5gTGxyKy4E=;
+ b=Ih701R9HUNPvqVQSig6dXoyDTRxy2Qthr6xn6lktizNg6YCjgLUuONtuUcipjt+bzm
+ OF5MQ7pCsQ00sUOaJ92w6idCVvqmnz6iUYX0MvDFTIDSO9kQpLMhJacEXODzSa1yWxRL
+ uhhsgNOyIr3MBxaXopl8G6yAftqEoTXwAl5qYHF5aKBBEF/2a4ELUJOQaA2KppCdtvih
+ 3YZXn2K62HWQzkWZMuH8G7FjR/Juc3tQFo7S/z13yjRhBnvdy2NQIl66voob+0Lua449
+ F7lnDF2/ULJ8mnqT1/fot2C/NVwibgwsmo86t+AHH3BSJcbKZDn4SFCI7a459WjV2G5A
+ qu/Q==
+X-Gm-Message-State: AOJu0YyjcLj92i2j+sNsZ1lyNjonVW4VTW9SOdaSDpBj9tasduZNWsnD
+ LOklxRwBXvBmUqTL2OE00GpHXHME4sNMWsB/SbWdYGofUuFFGrvu9D+ahzeBRLMK22hh2SY79UU
+ /
+X-Received: by 2002:a05:600c:4fd6:b0:420:29dd:84d0 with SMTP id
+ 5b1f17b1804b1-42156351b60mr28888125e9.29.1717617571925;
+ Wed, 05 Jun 2024 12:59:31 -0700 (PDT)
+Received: from localhost.localdomain
+ (cpc92302-cmbg19-2-0-cust1183.5-4.cable.virginm.net. [82.1.212.160])
+ by smtp.gmail.com with ESMTPSA id
+ 5b1f17b1804b1-42158110dd7sm33675725e9.17.2024.06.05.12.59.31
+ for <ffmpeg-devel@ffmpeg.org>
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 05 Jun 2024 12:59:31 -0700 (PDT)
+From: Mark Thompson <sw@jkqxz.net>
+To: ffmpeg-devel@ffmpeg.org
+Date: Wed,  5 Jun 2024 20:59:44 +0100
+Message-ID: <20240605195950.2297433-3-sw@jkqxz.net>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240605195950.2297433-1-sw@jkqxz.net>
+References: <20240605195950.2297433-1-sw@jkqxz.net>
+MIME-Version: 1.0
+Subject: [FFmpeg-devel] [PATCH v3 3/3] lavc/vaapi_hevc: Don't require exact
+ profiles
+X-BeenThere: ffmpeg-devel@ffmpeg.org
+X-Mailman-Version: 2.1.29
+Precedence: list
+List-Id: FFmpeg development discussions and patches <ffmpeg-devel.ffmpeg.org>
+List-Unsubscribe: <https://ffmpeg.org/mailman/options/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=unsubscribe>
+List-Archive: <https://ffmpeg.org/pipermail/ffmpeg-devel>
+List-Post: <mailto:ffmpeg-devel@ffmpeg.org>
+List-Help: <mailto:ffmpeg-devel-request@ffmpeg.org?subject=help>
+List-Subscribe: <https://ffmpeg.org/mailman/listinfo/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=subscribe>
+Reply-To: FFmpeg development discussions and patches <ffmpeg-devel@ffmpeg.org>
+Errors-To: ffmpeg-devel-bounces@ffmpeg.org
+Sender: "ffmpeg-devel" <ffmpeg-devel-bounces@ffmpeg.org>
+X-TUID: NS0J7EMSRoVO
+
+Rather than turning the constraint flags into a single profile and then
+searching for that profile (and failing if it doesn't match any profile
+exactly), instead search all supported profiles and use the first one
+which supports the given set of constraint flags.
+---
+ libavcodec/vaapi_decode.c | 45 +++++++++++-------
+ libavcodec/vaapi_hevc.c   | 99 ++++++++++++++++++++++-----------------
+ libavcodec/vaapi_hevc.h   |  4 +-
+ 3 files changed, 87 insertions(+), 61 deletions(-)
+
+diff --git a/libavcodec/vaapi_decode.c b/libavcodec/vaapi_decode.c
+index 7c91d50f7b..c9d8add69f 100644
+--- a/libavcodec/vaapi_decode.c
++++ b/libavcodec/vaapi_decode.c
+@@ -393,7 +393,9 @@ static const struct {
+     enum AVCodecID codec_id;
+     int codec_profile;
+     VAProfile va_profile;
+-    VAProfile (*profile_parser)(AVCodecContext *avctx);
++    VAProfile (*match_profile)(AVCodecContext *avctx,
++                               const VAProfile *profile_list,
++                               int profile_count);
+ } vaapi_profile_map[] = {
+ #define MAP(c, p, v, ...) { AV_CODEC_ID_ ## c, AV_PROFILE_ ## p, VAProfile ## v, __VA_ARGS__ }
+     MAP(MPEG2VIDEO,  MPEG2_SIMPLE,    MPEG2Simple ),
+@@ -420,9 +422,9 @@ static const struct {
+ #endif
+ #if VA_CHECK_VERSION(1, 2, 0) && CONFIG_HEVC_VAAPI_HWACCEL
+     MAP(HEVC,        HEVC_REXT,       None,
+-                 ff_vaapi_parse_hevc_rext_scc_profile ),
++             ff_vaapi_hevc_match_rext_scc_profile ),
+     MAP(HEVC,        HEVC_SCC,        None,
+-                 ff_vaapi_parse_hevc_rext_scc_profile ),
++             ff_vaapi_hevc_match_rext_scc_profile ),
+ #endif
+     MAP(MJPEG,       MJPEG_HUFFMAN_BASELINE_DCT,
+                                       JPEGBaseline),
+@@ -505,22 +507,33 @@ static int vaapi_decode_make_config(AVCodecContext *avctx,
+             vaapi_profile_map[i].codec_profile == AV_PROFILE_UNKNOWN)
+             profile_match = 1;
+ 
+-        va_profile = vaapi_profile_map[i].profile_parser ?
+-                     vaapi_profile_map[i].profile_parser(avctx) :
+-                     vaapi_profile_map[i].va_profile;
+         codec_profile = vaapi_profile_map[i].codec_profile;
+-
+-        for (j = 0; j < profile_count; j++) {
+-            if (va_profile == profile_list[j]) {
+-                exact_match = profile_match;
++        if (vaapi_profile_map[i].match_profile) {
++            va_profile =
++                vaapi_profile_map[i].match_profile(avctx, profile_list,
++                                                   profile_count);
++            if (va_profile != VAProfileNone) {
++                matched_va_profile = va_profile;
++                matched_ff_profile = codec_profile;
++                exact_match = 1;
+                 break;
+             }
+-        }
+-        if (j < profile_count) {
+-            matched_va_profile = va_profile;
+-            matched_ff_profile = codec_profile;
+-            if (exact_match)
+-                break;
++        } else {
++            va_profile = vaapi_profile_map[i].va_profile;
++
++            for (j = 0; j < profile_count; j++) {
++                if (va_profile == profile_list[j]) {
++                    exact_match = profile_match;
++                    break;
++                }
++            }
++
++            if (j < profile_count) {
++                matched_va_profile = va_profile;
++                matched_ff_profile = codec_profile;
++                if (exact_match)
++                    break;
++            }
+         }
+     }
+     av_freep(&profile_list);
+diff --git a/libavcodec/vaapi_hevc.c b/libavcodec/vaapi_hevc.c
+index 6164a1d223..716a4a4b43 100644
+--- a/libavcodec/vaapi_hevc.c
++++ b/libavcodec/vaapi_hevc.c
+@@ -589,63 +589,74 @@ static int ptl_convert(const PTLCommon *general_ptl, H265RawProfileTierLevel *h2
+ }
+ 
+ /*
+- * Find exact va_profile for HEVC Range Extension and Screen Content Coding Extension
++ * Find compatible va_profile for HEVC Range Extension and Screen
++ * Content Coding Extension profiles.
+  */
+-VAProfile ff_vaapi_parse_hevc_rext_scc_profile(AVCodecContext *avctx)
++VAProfile ff_vaapi_hevc_match_rext_scc_profile(AVCodecContext *avctx,
++                                               const VAProfile *profile_list,
++                                               int profile_count)
+ {
+     const HEVCContext *h = avctx->priv_data;
+     const HEVCSPS *sps = h->ps.sps;
+     const PTL *ptl = &sps->ptl;
+     const PTLCommon *general_ptl = &ptl->general_ptl;
+-    const H265ProfileDescriptor *profile;
+     H265RawProfileTierLevel h265_raw_ptl = {0};
+ 
++    static const struct {
++        enum H265Profile profile;
++        VAProfile     va_profile;
++    } map[] = {
++#if VA_CHECK_VERSION(1, 2, 0)
++        { H265_PROFILE_MAIN_12,
++          VAProfileHEVCMain12 },
++        { H265_PROFILE_MAIN_422_10,
++          VAProfileHEVCMain422_10 },
++        { H265_PROFILE_MAIN_422_12,
++          VAProfileHEVCMain422_12 },
++        { H265_PROFILE_MAIN_444,
++          VAProfileHEVCMain444 },
++        { H265_PROFILE_MAIN_444_10,
++          VAProfileHEVCMain444_10 },
++        { H265_PROFILE_MAIN_444_12,
++          VAProfileHEVCMain444_12 },
++        { H265_PROFILE_SCREEN_EXTENDED_MAIN,
++          VAProfileHEVCSccMain },
++        { H265_PROFILE_SCREEN_EXTENDED_MAIN_10,
++          VAProfileHEVCSccMain10 },
++        { H265_PROFILE_SCREEN_EXTENDED_MAIN_444,
++          VAProfileHEVCSccMain444 },
++#endif
++#if VA_CHECK_VERSION(1, 8, 0)
++        { H265_PROFILE_SCREEN_EXTENDED_MAIN_444_10,
++          VAProfileHEVCSccMain444_10 },
++#endif
++    };
++
+     /* convert PTLCommon to H265RawProfileTierLevel */
+     ptl_convert(general_ptl, &h265_raw_ptl);
+ 
+-    profile = ff_h265_find_profile(&h265_raw_ptl);
+-    if (!profile) {
+-        av_log(avctx, AV_LOG_WARNING, "HEVC profile is not found.\n");
+-        goto end;
+-    } else {
+-        av_log(avctx, AV_LOG_VERBOSE, "HEVC profile %s is found.\n", profile->name);
++    for (int i = 0; i < FF_ARRAY_ELEMS(map); i++) {
++        int available = 0;
++        for (int j = 0; j < profile_count; j++) {
++            if (profile_list[j] == map[i].va_profile) {
++                available = 1;
++                break;
++            }
++        }
++        if (!available)
++            continue;
++
++        if (ff_h265_profile_compatible(&h265_raw_ptl,
++                                       map[i].profile)) {
++            const H265ProfileDescriptor *profile_desc =
++                ff_h265_get_profile(map[i].profile);
++            av_log(avctx, AV_LOG_VERBOSE,
++                   "Decoding with HEVC profile %s.\n",
++                   profile_desc->name);
++            return map[i].va_profile;
++        }
+     }
+ 
+-#if VA_CHECK_VERSION(1, 2, 0)
+-    if (!strcmp(profile->name, "Main 12") ||
+-        !strcmp(profile->name, "Main 12 Intra"))
+-        return VAProfileHEVCMain12;
+-    else if (!strcmp(profile->name, "Main 4:2:2 10") ||
+-        !strcmp(profile->name, "Main 4:2:2 10 Intra"))
+-        return VAProfileHEVCMain422_10;
+-    else if (!strcmp(profile->name, "Main 4:2:2 12") ||
+-        !strcmp(profile->name, "Main 4:2:2 12 Intra"))
+-        return VAProfileHEVCMain422_12;
+-    else if (!strcmp(profile->name, "Main 4:4:4") ||
+-             !strcmp(profile->name, "Main 4:4:4 Intra"))
+-        return VAProfileHEVCMain444;
+-    else if (!strcmp(profile->name, "Main 4:4:4 10") ||
+-             !strcmp(profile->name, "Main 4:4:4 10 Intra"))
+-        return VAProfileHEVCMain444_10;
+-    else if (!strcmp(profile->name, "Main 4:4:4 12") ||
+-             !strcmp(profile->name, "Main 4:4:4 12 Intra"))
+-        return VAProfileHEVCMain444_12;
+-    else if (!strcmp(profile->name, "Screen-Extended Main"))
+-        return VAProfileHEVCSccMain;
+-    else if (!strcmp(profile->name, "Screen-Extended Main 10"))
+-        return VAProfileHEVCSccMain10;
+-    else if (!strcmp(profile->name, "Screen-Extended Main 4:4:4"))
+-        return VAProfileHEVCSccMain444;
+-#if VA_CHECK_VERSION(1, 8, 0)
+-    else if (!strcmp(profile->name, "Screen-Extended Main 4:4:4 10"))
+-        return VAProfileHEVCSccMain444_10;
+-#endif
+-#else
+-    av_log(avctx, AV_LOG_WARNING, "HEVC profile %s is "
+-           "not supported with this VA version.\n", profile->name);
+-#endif
+-
+-end:
+     if (avctx->hwaccel_flags & AV_HWACCEL_FLAG_ALLOW_PROFILE_MISMATCH) {
+         // Default to selecting Main profile if profile mismatch is allowed
+         return VAProfileHEVCMain;
+diff --git a/libavcodec/vaapi_hevc.h b/libavcodec/vaapi_hevc.h
+index 449635d0d7..455c68e6ba 100644
+--- a/libavcodec/vaapi_hevc.h
++++ b/libavcodec/vaapi_hevc.h
+@@ -22,6 +22,8 @@
+ #include <va/va.h>
+ #include "avcodec.h"
+ 
+-VAProfile ff_vaapi_parse_hevc_rext_scc_profile(AVCodecContext *avctx);
++VAProfile ff_vaapi_hevc_match_rext_scc_profile(AVCodecContext *avctx,
++                                               const VAProfile *profile_list,
++                                               int profile_count);
+ 
+ #endif /* AVCODEC_VAAPI_HEVC_H */

@@ -1,0 +1,397 @@
+From patchwork Wed Jun  5 19:59:42 2024
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Mark Thompson <sw@jkqxz.net>
+X-Patchwork-Id: 49596
+Delivered-To: ffmpegpatchwork2@gmail.com
+Received: by 2002:a59:ce4e:0:b0:478:35e:29dc with SMTP id n14csp21652vqx;
+        Wed, 5 Jun 2024 12:59:44 -0700 (PDT)
+X-Forwarded-Encrypted: i=2;
+ AJvYcCXC3mgM+EUXlid5TMvHuUlmgywuEsnvEAnV9sZnb1t/R0xPDB/hZoc6BzO6u433Hm3V/hXJ5J2UqbDoaSUQ4+7JrftaG5DIjKveoQ==
+X-Google-Smtp-Source: 
+ AGHT+IEB5o8yIRlSVRlnYUFS6BSkY23yOBiVLzOxhxXb/kQ4GVdqifTVOpIvGJwNollLAPh1lgjW
+X-Received: by 2002:a2e:a786:0:b0:2ea:81b3:d7f2 with SMTP id
+ 38308e7fff4ca-2eac79f228dmr25877541fa.4.1717617583782;
+        Wed, 05 Jun 2024 12:59:43 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1717617583; cv=none;
+        d=google.com; s=arc-20160816;
+        b=HuQYtadm/oKG5LXNZNC1nJqP/Co4383/bqkhc4x0ZJvqWTIU7G/gQUzwdQ5KFwmQnp
+         bAAGtXJ1h6ntGepwf1ZIc+iAaV3UgTqglBVJdxft691IHIwb4L/WVFyyBGbJNoVMDNHT
+         6N+7YTQBIZpQmlovqQ8GDDHeJufeOwzynhJCxZ6Lf3SIztdcyborDzER/ybdpRMWcFTo
+         neui1MvudQ/WRuKn5yJHnkeFpqtZ9zt51O+VNERzULdOpNcV1URsLpujcyoJy5O9ydd8
+         aycFZCxSviqzcj076PVuVfLEDOWSj28wVXiW1Gap8r/HoqECUZ6ci1ePkvOel6Bp/Ttk
+         gZbw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=sender:errors-to:content-transfer-encoding:reply-to:list-subscribe
+         :list-help:list-post:list-archive:list-unsubscribe:list-id
+         :precedence:subject:mime-version:message-id:date:to:from
+         :dkim-signature:delivered-to;
+        bh=Ablj7FKu6rp6QsMDw5n0t5EN1Y4kZKPcge+MpBBvoZA=;
+        fh=YOA8vD9MJZuwZ71F/05pj6KdCjf6jQRmzLS+CATXUQk=;
+        b=zG8+lGd7Yei7TGf3iBZjau+zZyAuej1UWc1x57cyIkuIo6gqEsoYU3bZq9jHS5oBlt
+         jitCMt+dca5DTzL39OJEtYkTBK48Z+OlJ1DX+KXZmG6TprW0NX2TlUGT5cZh+n4pWAwH
+         LO7mmBturNHxoM1Y3nb7HUtO+mS4T8t2XX9Rt+8CZE92N/QilxlZ/5Uwoc8QrlqKf3UC
+         ArTts9eQ5fLsp3rCNvUzTaoJ+HbsM48q94g9dOzDFUHL0X8mvfyyzccMe8ADHESu7TON
+         R70mjioCmpdodQWUzjp4qxdQIfuI/N9mnfnackQjI6rRxW6U260/u5wl2qfW15revN9y
+         cXhw==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=neutral (body hash did not verify)
+ header.i=@jkqxz-net.20230601.gappssmtp.com header.s=20230601
+ header.b=AGw9Nmui;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org
+Return-Path: <ffmpeg-devel-bounces@ffmpeg.org>
+Received: from ffbox0-bg.mplayerhq.hu (ffbox0-bg.ffmpeg.org. [79.124.17.100])
+        by mx.google.com with ESMTP id
+ 4fb4d7f45d1cf-57a31ba63bbsi6715118a12.157.2024.06.05.12.59.42;
+        Wed, 05 Jun 2024 12:59:43 -0700 (PDT)
+Received-SPF: pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender) client-ip=79.124.17.100;
+Authentication-Results: mx.google.com;
+       dkim=neutral (body hash did not verify)
+ header.i=@jkqxz-net.20230601.gappssmtp.com header.s=20230601
+ header.b=AGw9Nmui;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org
+Received: from [127.0.1.1] (localhost [127.0.0.1])
+	by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTP id E33CE68D612;
+	Wed,  5 Jun 2024 22:59:38 +0300 (EEST)
+X-Original-To: ffmpeg-devel@ffmpeg.org
+Delivered-To: ffmpeg-devel@ffmpeg.org
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com
+ [209.85.128.53])
+ by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTPS id BF5F668D52E
+ for <ffmpeg-devel@ffmpeg.org>; Wed,  5 Jun 2024 22:59:31 +0300 (EEST)
+Received: by mail-wm1-f53.google.com with SMTP id
+ 5b1f17b1804b1-42121d27861so2943915e9.0
+ for <ffmpeg-devel@ffmpeg.org>; Wed, 05 Jun 2024 12:59:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=jkqxz-net.20230601.gappssmtp.com; s=20230601; t=1717617571; x=1718222371;
+ darn=ffmpeg.org;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:to
+ :from:from:to:cc:subject:date:message-id:reply-to;
+ bh=DNHXJvXy61/grKz+OELs6UFt+iDeyisqzGDriJc7jd4=;
+ b=AGw9Nmui3xzw4mAp8JKjl4wtj3O63/i9NmgT+hoFS7H3FFqTD1BXQHqRTJ5q4M6TB0
+ X1MKEvBxCrvqblL3UxouYSyt8grBXeDJe4wmaxZg2R53y2kaKGjHQ8lcnjFlAndXZawk
+ FefPIDKVsNViOuFdrtFG+RzfMpiUmbWMIGr3mnL+1j3o6tQ9HbjauL54IBn8ozbNlaYI
+ ZXAxk8CyVQBUhD/TBMecBYmq7ZSQDi/G65K4Kcac+rx5+ZjU5hNOHq//F0eAlBEKy/AK
+ sZoAmuScVmxOILGTwDtowqNscAlVdqu0HW9jhvi50IyhSM2ELeF36B48lFesPyGoTWrp
+ VoMQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1717617571; x=1718222371;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:to
+ :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=DNHXJvXy61/grKz+OELs6UFt+iDeyisqzGDriJc7jd4=;
+ b=mFuopidcKMAbu/2pF+etDy9cW/bbQofrNQ25Ro0+dOyvbSBxbkTkw0GV03ke75I+fV
+ iNP0gXJtLzAaGlcetKezrTzXDv5hIcDMghBwHHHA8m2r1CYotSlNsy+9HMNMCq0kKWTf
+ j0h77B7E8ew22YjmOZuyE3LgGvVL4bMc3NBw4RL+0OlTh7iqFGyjo6Z/ytOjjhHr2dZQ
+ 5166C5Wh3LU8AN9gM2FDloqtkTrg4lK3Snm0BE723mIhfsPaBPDPtEqPb9pbSldv1GB5
+ 7gPYWMHchdtGoNePk3GS4owUNKgbn93qslmlGkYhvR/tHO/hgPDw9eKyt35NWbPOSv4z
+ moQQ==
+X-Gm-Message-State: AOJu0YwQkJ5CBn91F/Cb6uIxzHlOUjDgO/FYuq03a4ejoyCT4axuvAj6
+ jKnDs4r/XWC5YaZMLpFmvOU4qi0lF+q3uuVDI+PRFGScnd2EUhItjMAqvNgpHYBPpZXnkPc5VGJ
+ 5
+X-Received: by 2002:a05:600c:1f93:b0:421:b79:93fd with SMTP id
+ 5b1f17b1804b1-421562e7053mr28790925e9.21.1717617570789;
+ Wed, 05 Jun 2024 12:59:30 -0700 (PDT)
+Received: from localhost.localdomain
+ (cpc92302-cmbg19-2-0-cust1183.5-4.cable.virginm.net. [82.1.212.160])
+ by smtp.gmail.com with ESMTPSA id
+ 5b1f17b1804b1-42158110dd7sm33675725e9.17.2024.06.05.12.59.30
+ for <ffmpeg-devel@ffmpeg.org>
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 05 Jun 2024 12:59:30 -0700 (PDT)
+From: Mark Thompson <sw@jkqxz.net>
+To: ffmpeg-devel@ffmpeg.org
+Date: Wed,  5 Jun 2024 20:59:42 +0100
+Message-ID: <20240605195950.2297433-1-sw@jkqxz.net>
+X-Mailer: git-send-email 2.43.0
+MIME-Version: 1.0
+Subject: [FFmpeg-devel] [PATCH v3 1/3] lavc/h265_profile_level: Expand
+ profile compatibility checking
+X-BeenThere: ffmpeg-devel@ffmpeg.org
+X-Mailman-Version: 2.1.29
+Precedence: list
+List-Id: FFmpeg development discussions and patches <ffmpeg-devel.ffmpeg.org>
+List-Unsubscribe: <https://ffmpeg.org/mailman/options/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=unsubscribe>
+List-Archive: <https://ffmpeg.org/pipermail/ffmpeg-devel>
+List-Post: <mailto:ffmpeg-devel@ffmpeg.org>
+List-Help: <mailto:ffmpeg-devel-request@ffmpeg.org?subject=help>
+List-Subscribe: <https://ffmpeg.org/mailman/listinfo/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=subscribe>
+Reply-To: FFmpeg development discussions and patches <ffmpeg-devel@ffmpeg.org>
+Errors-To: ffmpeg-devel-bounces@ffmpeg.org
+Sender: "ffmpeg-devel" <ffmpeg-devel-bounces@ffmpeg.org>
+X-TUID: riYhDQ6eQFoo
+
+Replace existing get_profile() with find_profile(), which finds the
+lowest compatible profile rather than requiring an exact match.
+---
+Now with an enum tag.
+
+
+ libavcodec/h265_profile_level.c | 80 +++++++++++++++++++++------------
+ libavcodec/h265_profile_level.h | 70 ++++++++++++++++++++++++++++-
+ libavcodec/tests/h265_levels.c  |  2 +-
+ libavcodec/vaapi_hevc.c         |  2 +-
+ libavcodec/vdpau_hevc.c         |  2 +-
+ 5 files changed, 124 insertions(+), 32 deletions(-)
+
+diff --git a/libavcodec/h265_profile_level.c b/libavcodec/h265_profile_level.c
+index 7ff9681f65..1e96ec1c32 100644
+--- a/libavcodec/h265_profile_level.c
++++ b/libavcodec/h265_profile_level.c
+@@ -16,6 +16,8 @@
+  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+  */
+ 
++#include <assert.h>
++
+ #include "h265_profile_level.h"
+ 
+ 
+@@ -40,6 +42,7 @@ static const H265LevelDescriptor h265_levels[] = {
+ };
+ 
+ static const H265ProfileDescriptor h265_profiles[] = {
++    { "Invalid" },
+     // profile_idc   8bit       one-picture
+     //   HT-profile  | 422chroma    | lower-bit-rate
+     //   |  14bit    |  | 420chroma |  | CpbVclFactor     MinCrScaleFactor
+@@ -119,41 +122,62 @@ static const H265ProfileDescriptor h265_profiles[] = {
+       5, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 4000, 4400, 6.000, 0.5, 6 },
+ };
+ 
++static_assert(H265_PROFILE_COUNT == FF_ARRAY_ELEMS(h265_profiles),
++              "Incorrect H.265 profiles table.");
++
+ 
+-const H265ProfileDescriptor *ff_h265_get_profile(const H265RawProfileTierLevel *ptl)
++const int ff_h265_profile_compatible(const H265RawProfileTierLevel *ptl,
++                                     enum H265Profile profile)
+ {
+-    int i;
++    const H265ProfileDescriptor *desc;
++
++    av_assert0(profile > H265_PROFILE_INVALID &&
++               profile < H265_PROFILE_COUNT);
+ 
+     if (ptl->general_profile_space)
+-        return NULL;
++        return 0;
+ 
+-    for (i = 0; i < FF_ARRAY_ELEMS(h265_profiles); i++) {
+-        const H265ProfileDescriptor *profile = &h265_profiles[i];
++    desc = &h265_profiles[profile];
+ 
+-        if (ptl->general_profile_idc &&
+-            ptl->general_profile_idc != profile->profile_idc)
+-            continue;
+-        if (!ptl->general_profile_compatibility_flag[profile->profile_idc])
+-            continue;
++    if (ptl->general_profile_idc &&
++        ptl->general_profile_idc != desc->profile_idc)
++        return 0;
++    if (!ptl->general_profile_compatibility_flag[desc->profile_idc])
++        return 0;
+ 
+-#define check_flag(name) \
+-        if (profile->name < 2) { \
+-            if (profile->name != ptl->general_ ## name ## _constraint_flag) \
+-                continue; \
+-        }
+-        check_flag(max_14bit);
+-        check_flag(max_12bit);
+-        check_flag(max_10bit);
+-        check_flag(max_8bit);
+-        check_flag(max_422chroma);
+-        check_flag(max_420chroma);
+-        check_flag(max_monochrome);
+-        check_flag(intra);
+-        check_flag(one_picture_only);
+-        check_flag(lower_bit_rate);
++#define check_flag(flag) \
++    if (desc->flag < 2 && \
++        desc->flag > ptl->general_ ## flag ## _constraint_flag) \
++        return 0;
++    check_flag(max_14bit);
++    check_flag(max_12bit);
++    check_flag(max_10bit);
++    check_flag(max_8bit);
++    check_flag(max_422chroma);
++    check_flag(max_420chroma);
++    check_flag(max_monochrome);
++    check_flag(intra);
++    check_flag(one_picture_only);
++    check_flag(lower_bit_rate);
+ #undef check_flag
+ 
+-        return profile;
++    return 1;
++}
++
++
++const H265ProfileDescriptor *ff_h265_get_profile(enum H265Profile profile)
++{
++    av_assert0(profile > H265_PROFILE_INVALID &&
++               profile < H265_PROFILE_COUNT);
++
++    return &h265_profiles[profile];
++}
++
++const H265ProfileDescriptor *ff_h265_find_profile(const H265RawProfileTierLevel *ptl)
++{
++    for (int p = 1; p < H265_PROFILE_COUNT; p++) {
++        if (ff_h265_profile_compatible(ptl, p))
++            return &h265_profiles[p];
+     }
+ 
+     return NULL;
+@@ -171,12 +195,12 @@ const H265LevelDescriptor *ff_h265_guess_level(const H265RawProfileTierLevel *pt
+     int i;
+ 
+     if (ptl)
+-        profile = ff_h265_get_profile(ptl);
++        profile = ff_h265_find_profile(ptl);
+     else
+         profile = NULL;
+     if (!profile) {
+         // Default to using multiplication factors for Main profile.
+-        profile = &h265_profiles[4];
++        profile = &h265_profiles[H265_PROFILE_MAIN];
+     }
+ 
+     pic_size = width * height;
+diff --git a/libavcodec/h265_profile_level.h b/libavcodec/h265_profile_level.h
+index cd30ac5c50..c019c738a7 100644
+--- a/libavcodec/h265_profile_level.h
++++ b/libavcodec/h265_profile_level.h
+@@ -24,6 +24,50 @@
+ #include "cbs_h265.h"
+ 
+ 
++// Enumeration of all H.265 profiles.
++// The list is ordered to match table A.10; numeric values are an index
++// into the latest version of this table and have no codec meaning.
++enum H265Profile {
++    H265_PROFILE_INVALID,
++    H265_PROFILE_MONOCHROME,
++    H265_PROFILE_MONOCHROME_10,
++    H265_PROFILE_MONOCHROME_12,
++    H265_PROFILE_MONOCHROME_16,
++    H265_PROFILE_MAIN,
++    H265_PROFILE_SCREEN_EXTENDED_MAIN,
++    H265_PROFILE_MAIN_10,
++    H265_PROFILE_SCREEN_EXTENDED_MAIN_10,
++    H265_PROFILE_MAIN_12,
++    H265_PROFILE_MAIN_STILL_PICTURE,
++    H265_PROFILE_MAIN_10_STILL_PICTURE,
++    H265_PROFILE_MAIN_422_10,
++    H265_PROFILE_MAIN_422_12,
++    H265_PROFILE_MAIN_444,
++    H265_PROFILE_HIGH_THROUGHPUT_444,
++    H265_PROFILE_SCREEN_EXTENDED_MAIN_444,
++    H265_PROFILE_SCREEN_EXTENDED_HIGH_THROUGHPUT_444,
++    H265_PROFILE_MAIN_444_10,
++    H265_PROFILE_HIGH_THROUGHPUT_444_10,
++    H265_PROFILE_SCREEN_EXTENDED_MAIN_444_10,
++    H265_PROFILE_SCREEN_EXTENDED_HIGH_THROUGHPUT_444_10,
++    H265_PROFILE_MAIN_444_12,
++    H265_PROFILE_HIGH_THROUGHPUT_444_14,
++    H265_PROFILE_SCREEN_EXTENDED_HIGH_THROUGHPUT_444_14,
++    H265_PROFILE_MAIN_INTRA,
++    H265_PROFILE_MAIN_10_INTRA,
++    H265_PROFILE_MAIN_12_INTRA,
++    H265_PROFILE_MAIN_422_10_INTRA,
++    H265_PROFILE_MAIN_422_12_INTRA,
++    H265_PROFILE_MAIN_444_INTRA,
++    H265_PROFILE_MAIN_444_10_INTRA,
++    H265_PROFILE_MAIN_444_12_INTRA,
++    H265_PROFILE_MAIN_444_16_INTRA,
++    H265_PROFILE_MAIN_444_STILL_PICTURE,
++    H265_PROFILE_MAIN_444_16_STILL_PICTURE,
++    H265_PROFILE_HIGH_THROUGHPUT_444_16_INTRA,
++    H265_PROFILE_COUNT,
++};
++
+ typedef struct H265LevelDescriptor {
+     char        name[4];    // Large enough for all current levels like "4.1"
+     uint8_t     level_idc;
+@@ -70,7 +114,31 @@ typedef struct H265ProfileDescriptor {
+ } H265ProfileDescriptor;
+ 
+ 
+-const H265ProfileDescriptor *ff_h265_get_profile(const H265RawProfileTierLevel *ptl);
++/**
++ * Test whether the PTL structure is compatible with the given profile.
++ *
++ * @param ptl      PTL structure to check.
++ * @param profile  Profile to test compatibility with.
++ * @return  Nonzero if compatible, zero if incompatible.
++ */
++const int ff_h265_profile_compatible(const H265RawProfileTierLevel *ptl,
++                                     enum H265Profile profile);
++
++/**
++ * Return profile descriptor for the given profile.
++ *
++ * @param profile  Profile.
++ * @return  Profile descriptor.
++ */
++const H265ProfileDescriptor *ff_h265_get_profile(enum H265Profile profile);
++
++/**
++ * Find the first profile compatible with the given PTL structure.
++ *
++ * @param ptl  PTL structure to search for.
++ * @return  First compatible profile, or NULL if no compatible profiles.
++ */
++const H265ProfileDescriptor *ff_h265_find_profile(const H265RawProfileTierLevel *ptl);
+ 
+ 
+ /**
+diff --git a/libavcodec/tests/h265_levels.c b/libavcodec/tests/h265_levels.c
+index 66d72c63a3..9923f346f7 100644
+--- a/libavcodec/tests/h265_levels.c
++++ b/libavcodec/tests/h265_levels.c
+@@ -275,7 +275,7 @@ int main(void)
+     }
+ 
+     for (i = 0; i < FF_ARRAY_ELEMS(test_bitrate); i++) {
+-        profile = ff_h265_get_profile(test_bitrate[i].ptl);
++        profile = ff_h265_find_profile(test_bitrate[i].ptl);
+         level = ff_h265_guess_level(test_bitrate[i].ptl,
+                                     test_bitrate[i].bitrate,
+                                     0, 0, 0, 0, 0, 0);
+diff --git a/libavcodec/vaapi_hevc.c b/libavcodec/vaapi_hevc.c
+index 051762bfef..6164a1d223 100644
+--- a/libavcodec/vaapi_hevc.c
++++ b/libavcodec/vaapi_hevc.c
+@@ -603,7 +603,7 @@ VAProfile ff_vaapi_parse_hevc_rext_scc_profile(AVCodecContext *avctx)
+     /* convert PTLCommon to H265RawProfileTierLevel */
+     ptl_convert(general_ptl, &h265_raw_ptl);
+ 
+-    profile = ff_h265_get_profile(&h265_raw_ptl);
++    profile = ff_h265_find_profile(&h265_raw_ptl);
+     if (!profile) {
+         av_log(avctx, AV_LOG_WARNING, "HEVC profile is not found.\n");
+         goto end;
+diff --git a/libavcodec/vdpau_hevc.c b/libavcodec/vdpau_hevc.c
+index f7cf1bd9c0..e7587f9994 100644
+--- a/libavcodec/vdpau_hevc.c
++++ b/libavcodec/vdpau_hevc.c
+@@ -478,7 +478,7 @@ static int vdpau_hevc_parse_rext_profile(AVCodecContext *avctx, VdpDecoderProfil
+     /* convert PTLCommon to H265RawProfileTierLevel */
+     ptl_convert(general_ptl, &h265_raw_ptl);
+ 
+-    profile = ff_h265_get_profile(&h265_raw_ptl);
++    profile = ff_h265_find_profile(&h265_raw_ptl);
+     if (!profile) {
+         av_log(avctx, AV_LOG_WARNING, "HEVC profile is not found.\n");
+         if (avctx->hwaccel_flags & AV_HWACCEL_FLAG_ALLOW_PROFILE_MISMATCH) {

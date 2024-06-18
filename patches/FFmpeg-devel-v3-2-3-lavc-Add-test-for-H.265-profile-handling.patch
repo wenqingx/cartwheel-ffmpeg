@@ -1,0 +1,630 @@
+From patchwork Wed Jun  5 19:59:43 2024
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Mark Thompson <sw@jkqxz.net>
+X-Patchwork-Id: 49597
+Delivered-To: ffmpegpatchwork2@gmail.com
+Received: by 2002:a59:ce4e:0:b0:478:35e:29dc with SMTP id n14csp21731vqx;
+        Wed, 5 Jun 2024 12:59:53 -0700 (PDT)
+X-Forwarded-Encrypted: i=2;
+ AJvYcCWOCltalI8IMBa5EEmughsXiCn9XsEecoiDMUGQg02dthYcoLa6JiwWwtq+45jlny+e/Kq3iXN+W7U/7ofg6wTCgZNrrHkXpdW+nA==
+X-Google-Smtp-Source: 
+ AGHT+IHtiovQDLCDfnHg7/1/1RNc6d2Mt9xF8Ky7mq0zfxs8o/9/3X3GsMw4HjLbkwr92GMh+eg9
+X-Received: by 2002:a05:6512:3a8e:b0:52b:8c88:2d6b with SMTP id
+ 2adb3069b0e04-52bab4c858emr2603406e87.11.1717617592999;
+        Wed, 05 Jun 2024 12:59:52 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1717617592; cv=none;
+        d=google.com; s=arc-20160816;
+        b=QG5n0mtH51mogNjZCdQ0rNUAFE+PkTgmRAQtyjgOyDfX0wwMSqxk38LsiXJU7nXt4/
+         Xy7hIHMViT9KDDpoKDy+84PzdXKb6p+WD/BFqI8Y7q0Vwh7z6WPb3GOOY9alP5aVSxTA
+         jn/mxSpPL/BM4H0d0ML2t7bir+0S3DRp/pJJFNjWhKEV0Dm3Ac/PZKeqJk3Unqife6Wz
+         /MKmNskZXYQO5mcy6DBxyKq+QK9HVs3PAAHXZY7G28oJ650MH103Qcx+tSeww3UMYrkU
+         IpnVdgIW671YW7PCnNV49BW56IoBIWHEQb6GqQ+pugmyXIPv6ub4GfHTKXpDOUH583JL
+         3IBw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=sender:errors-to:content-transfer-encoding:reply-to:list-subscribe
+         :list-help:list-post:list-archive:list-unsubscribe:list-id
+         :precedence:subject:mime-version:references:in-reply-to:message-id
+         :date:to:from:dkim-signature:delivered-to;
+        bh=IYOgIuNsuiWHkU/4AUClrqx7I5ArQ3gET27IQCTXO6k=;
+        fh=YOA8vD9MJZuwZ71F/05pj6KdCjf6jQRmzLS+CATXUQk=;
+        b=VxrS/SJOU2cBFjUD+9fo818ETicdb6GF7v873j9OaQbW3vQmbPjLtfuLyweJF3QYxA
+         1sWdmpT4ez/AI1ZpPFJkzeQf8Xxo7umCMzN7nfp/lXolITZWFaJ3jWzfdmET7V/lKsI7
+         xBzvXrL2IyVYEXs1NMfLsOpYH93ygp85546P1fNyYkJUya5I5AcGX6H4yRnLsXJQdadv
+         Dl2a5rPq0cgvQLy2BihWg6oC1FotYEtc6wvvg7+oHJNMlWc0hxyAFSf3fqUogQXk1qY+
+         GdoLqJx5xLuq/j+Xkbk5Krj4InPM3NRv9BUK5ar/M70q/Xp2HtIT6L3qAxfX4UrIbssG
+         mHyQ==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=neutral (body hash did not verify)
+ header.i=@jkqxz-net.20230601.gappssmtp.com header.s=20230601
+ header.b=rlo2592q;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org
+Return-Path: <ffmpeg-devel-bounces@ffmpeg.org>
+Received: from ffbox0-bg.mplayerhq.hu (ffbox0-bg.ffmpeg.org. [79.124.17.100])
+        by mx.google.com with ESMTP id
+ 2adb3069b0e04-52bb2194a48si100221e87.112.2024.06.05.12.59.52;
+        Wed, 05 Jun 2024 12:59:52 -0700 (PDT)
+Received-SPF: pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender) client-ip=79.124.17.100;
+Authentication-Results: mx.google.com;
+       dkim=neutral (body hash did not verify)
+ header.i=@jkqxz-net.20230601.gappssmtp.com header.s=20230601
+ header.b=rlo2592q;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org
+Received: from [127.0.1.1] (localhost [127.0.0.1])
+	by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTP id 0708268D52E;
+	Wed,  5 Jun 2024 22:59:40 +0300 (EEST)
+X-Original-To: ffmpeg-devel@ffmpeg.org
+Delivered-To: ffmpeg-devel@ffmpeg.org
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com
+ [209.85.128.48])
+ by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTPS id 1967068D52E
+ for <ffmpeg-devel@ffmpeg.org>; Wed,  5 Jun 2024 22:59:32 +0300 (EEST)
+Received: by mail-wm1-f48.google.com with SMTP id
+ 5b1f17b1804b1-42121d27861so2944005e9.0
+ for <ffmpeg-devel@ffmpeg.org>; Wed, 05 Jun 2024 12:59:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=jkqxz-net.20230601.gappssmtp.com; s=20230601; t=1717617571; x=1718222371;
+ darn=ffmpeg.org;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
+ :reply-to; bh=psvBdyUTBGITjsGNhI/bfLlNriAgth0tO4XuZHQ1hVs=;
+ b=rlo2592qWC6RGMgDrDRZLasYuqJ0PJCEtoD3C7oJAc2zbg3RNCP+0Ur1f5cy2Lg67h
+ tQEPQLYQfbS0lBWKPBGnFXpOyA+7uKrRR8S0S4oO4DfeqNwh+p/EbzslRxGnqgnHW/d2
+ nK5O7rvQ8P0kWfqiGoPS47Niv3wH5X9LlLE+FaYKbQj8npdCm99UI9PYR+v5IeKOXQIA
+ agu0bsZw6WM2wPyuWgcP1jICL6RONBOPC3uegBED8mY4u4orHeFfWPHUT3JhV7rHikkA
+ 8usZBt1zbGN2if4NvlNNTmTypgTKDOyvotjdz1Ws8vGf+RWG5PWZFUFYtG4jUxZFiTHz
+ KNVg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1717617571; x=1718222371;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=psvBdyUTBGITjsGNhI/bfLlNriAgth0tO4XuZHQ1hVs=;
+ b=DynDQ0HgVx5XjBE67ZVX30Ism4s+bzWAvjzp49kOQYX9BUzYBurNsoy9w8FytXgFrD
+ kO1MAZ0ALJVmVMwFdZ4Kp/PeFplZDxvummwqdgrsKhzmxsc0Rqcx++AiX+zjxFK/jlBj
+ ev7qa914Nsm8Dtf5LoN5x9V5M0GoosbdDZSTBdf2rNSWQx2a07KbPJsDVvaiNYlflUBW
+ QqOGkIjwnFIsVpk9JPiTWXk4p6ALkDRCmZoJFeiSRn9P4JzN/qjRCqUisc5gT8qdAlz4
+ MzkSah0otazHeAceDOXw7S024jf6IbDIsuMtlqPraWYxSLyT0lD1DS1/0RiJdLTYgUTc
+ 5AEQ==
+X-Gm-Message-State: AOJu0Yx07bw/UVWhV/V4lEtFIsLz3GfGYbZOKWIgzxqjswYdr+7I4yHy
+ 7i1x+SK1zEl8tab2G8+iIRWGpBh8aIdi3moS3V4orHdy3XtfPhUddKKYjOBqz5DQBweNi8RRe/n
+ A
+X-Received: by 2002:a05:600c:3505:b0:421:5329:23d with SMTP id
+ 5b1f17b1804b1-421562c8050mr28258455e9.6.1717617571302;
+ Wed, 05 Jun 2024 12:59:31 -0700 (PDT)
+Received: from localhost.localdomain
+ (cpc92302-cmbg19-2-0-cust1183.5-4.cable.virginm.net. [82.1.212.160])
+ by smtp.gmail.com with ESMTPSA id
+ 5b1f17b1804b1-42158110dd7sm33675725e9.17.2024.06.05.12.59.30
+ for <ffmpeg-devel@ffmpeg.org>
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 05 Jun 2024 12:59:31 -0700 (PDT)
+From: Mark Thompson <sw@jkqxz.net>
+To: ffmpeg-devel@ffmpeg.org
+Date: Wed,  5 Jun 2024 20:59:43 +0100
+Message-ID: <20240605195950.2297433-2-sw@jkqxz.net>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240605195950.2297433-1-sw@jkqxz.net>
+References: <20240605195950.2297433-1-sw@jkqxz.net>
+MIME-Version: 1.0
+Subject: [FFmpeg-devel] [PATCH v3 2/3] lavc: Add test for H.265 profile
+ handling
+X-BeenThere: ffmpeg-devel@ffmpeg.org
+X-Mailman-Version: 2.1.29
+Precedence: list
+List-Id: FFmpeg development discussions and patches <ffmpeg-devel.ffmpeg.org>
+List-Unsubscribe: <https://ffmpeg.org/mailman/options/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=unsubscribe>
+List-Archive: <https://ffmpeg.org/pipermail/ffmpeg-devel>
+List-Post: <mailto:ffmpeg-devel@ffmpeg.org>
+List-Help: <mailto:ffmpeg-devel-request@ffmpeg.org?subject=help>
+List-Subscribe: <https://ffmpeg.org/mailman/listinfo/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=subscribe>
+Reply-To: FFmpeg development discussions and patches <ffmpeg-devel@ffmpeg.org>
+Errors-To: ffmpeg-devel-bounces@ffmpeg.org
+Sender: "ffmpeg-devel" <ffmpeg-devel-bounces@ffmpeg.org>
+X-TUID: dnrABkoI13El
+
+---
+ libavcodec/Makefile              |   2 +-
+ libavcodec/tests/.gitignore      |   1 +
+ libavcodec/tests/h265_profiles.c | 440 +++++++++++++++++++++++++++++++
+ tests/fate/libavcodec.mak        |   5 +
+ 4 files changed, 447 insertions(+), 1 deletion(-)
+ create mode 100644 libavcodec/tests/h265_profiles.c
+
+diff --git a/libavcodec/Makefile b/libavcodec/Makefile
+index 8ab4398b6c..e7973fb2e6 100644
+--- a/libavcodec/Makefile
++++ b/libavcodec/Makefile
+@@ -1297,7 +1297,7 @@ TESTPROGS-$(CONFIG_MJPEG_ENCODER)         += mjpegenc_huffman
+ TESTPROGS-$(HAVE_MMX)                     += motion
+ TESTPROGS-$(CONFIG_MPEGVIDEO)             += mpeg12framerate
+ TESTPROGS-$(CONFIG_H264_METADATA_BSF)     += h264_levels
+-TESTPROGS-$(CONFIG_HEVC_METADATA_BSF)     += h265_levels
++TESTPROGS-$(CONFIG_HEVC_METADATA_BSF)     += h265_levels h265_profiles
+ TESTPROGS-$(CONFIG_RANGECODER)            += rangecoder
+ TESTPROGS-$(CONFIG_SNOW_ENCODER)          += snowenc
+ 
+diff --git a/libavcodec/tests/.gitignore b/libavcodec/tests/.gitignore
+index 0df4ae10a0..bf29f03911 100644
+--- a/libavcodec/tests/.gitignore
++++ b/libavcodec/tests/.gitignore
+@@ -10,6 +10,7 @@
+ /golomb
+ /h264_levels
+ /h265_levels
++/h265_profiles
+ /htmlsubtitles
+ /iirfilter
+ /jpeg2000dwt
+diff --git a/libavcodec/tests/h265_profiles.c b/libavcodec/tests/h265_profiles.c
+new file mode 100644
+index 0000000000..37fc545558
+--- /dev/null
++++ b/libavcodec/tests/h265_profiles.c
+@@ -0,0 +1,440 @@
++/*
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#include "libavutil/bprint.h"
++#include "libavutil/common.h"
++#include "libavcodec/h265_profile_level.h"
++
++
++enum {
++    TYPE_MAIN,
++    TYPE_SP,
++    TYPE_REXT_INTER,
++    TYPE_REXT_INTRA,
++    TYPE_HT,
++    TYPE_HT_INTRA,
++    TYPE_SCC,
++    TYPE_HT_SCC,
++    TYPE_COUNT,
++};
++enum {
++    DEPTH_8,
++    DEPTH_10,
++    DEPTH_12,
++    DEPTH_14,
++    DEPTH_16,
++    DEPTH_COUNT,
++};
++enum {
++    CHROMA_MONO,
++    CHROMA_420,
++    CHROMA_422,
++    CHROMA_444,
++    CHROMA_COUNT,
++};
++
++// Table of all profiles indexed by chroma subsampling, bit depth and
++// profile type.  This is currently only being used to verify that
++// profile properties are correct, but if there is some other need for
++// this lookup in lavc then the table should be moved to the common
++// profile-level code.  All profiles should appear exactly once in this
++// table (also verified by a test below).
++static enum H265Profile profile_table[CHROMA_COUNT][DEPTH_COUNT][TYPE_COUNT] = {
++    [CHROMA_MONO] = {
++        [DEPTH_8] = {
++            [TYPE_REXT_INTER] = H265_PROFILE_MONOCHROME,
++        },
++        [DEPTH_10] = {
++            [TYPE_REXT_INTER] = H265_PROFILE_MONOCHROME_10,
++        },
++        [DEPTH_12] = {
++            [TYPE_REXT_INTER] = H265_PROFILE_MONOCHROME_12,
++        },
++        [DEPTH_16] = {
++            [TYPE_REXT_INTER] = H265_PROFILE_MONOCHROME_16,
++        },
++    },
++    [CHROMA_420] = {
++        [DEPTH_8] = {
++            [TYPE_MAIN]       = H265_PROFILE_MAIN,
++            [TYPE_SP]         = H265_PROFILE_MAIN_STILL_PICTURE,
++            [TYPE_REXT_INTRA] = H265_PROFILE_MAIN_INTRA,
++            [TYPE_SCC]        = H265_PROFILE_SCREEN_EXTENDED_MAIN,
++        },
++        [DEPTH_10] = {
++            [TYPE_MAIN]       = H265_PROFILE_MAIN_10,
++            [TYPE_SP]         = H265_PROFILE_MAIN_10_STILL_PICTURE,
++            [TYPE_REXT_INTRA] = H265_PROFILE_MAIN_10_INTRA,
++            [TYPE_SCC]        = H265_PROFILE_SCREEN_EXTENDED_MAIN_10,
++        },
++        [DEPTH_12] = {
++            [TYPE_REXT_INTER] = H265_PROFILE_MAIN_12,
++            [TYPE_REXT_INTRA] = H265_PROFILE_MAIN_12_INTRA,
++        },
++    },
++    [CHROMA_422] ={
++        [DEPTH_10] = {
++            [TYPE_REXT_INTER] = H265_PROFILE_MAIN_422_10,
++            [TYPE_REXT_INTRA] = H265_PROFILE_MAIN_422_10_INTRA,
++        },
++        [DEPTH_12] = {
++            [TYPE_REXT_INTER] = H265_PROFILE_MAIN_422_12,
++            [TYPE_REXT_INTRA] = H265_PROFILE_MAIN_422_12_INTRA,
++        },
++    },
++    [CHROMA_444] ={
++        [DEPTH_8] = {
++            [TYPE_SP]         = H265_PROFILE_MAIN_444_STILL_PICTURE,
++            [TYPE_REXT_INTER] = H265_PROFILE_MAIN_444,
++            [TYPE_REXT_INTRA] = H265_PROFILE_MAIN_444_INTRA,
++            [TYPE_HT]         = H265_PROFILE_HIGH_THROUGHPUT_444,
++            [TYPE_SCC]        = H265_PROFILE_SCREEN_EXTENDED_MAIN_444,
++            [TYPE_HT_SCC]     = H265_PROFILE_SCREEN_EXTENDED_HIGH_THROUGHPUT_444,
++        },
++        [DEPTH_10] = {
++            [TYPE_REXT_INTER] = H265_PROFILE_MAIN_444_10,
++            [TYPE_REXT_INTRA] = H265_PROFILE_MAIN_444_10_INTRA,
++            [TYPE_HT]         = H265_PROFILE_HIGH_THROUGHPUT_444_10,
++            [TYPE_SCC]        = H265_PROFILE_SCREEN_EXTENDED_MAIN_444_10,
++            [TYPE_HT_SCC]     = H265_PROFILE_SCREEN_EXTENDED_HIGH_THROUGHPUT_444_10,
++        },
++        [DEPTH_12] = {
++            [TYPE_REXT_INTER] = H265_PROFILE_MAIN_444_12,
++            [TYPE_REXT_INTRA] = H265_PROFILE_MAIN_444_12_INTRA,
++        },
++        [DEPTH_14] = {
++            [TYPE_HT]         = H265_PROFILE_HIGH_THROUGHPUT_444_14,
++            [TYPE_HT_SCC]     = H265_PROFILE_SCREEN_EXTENDED_HIGH_THROUGHPUT_444_14,
++        },
++        [DEPTH_16] = {
++            [TYPE_SP]         = H265_PROFILE_MAIN_444_16_STILL_PICTURE,
++            [TYPE_REXT_INTRA] = H265_PROFILE_MAIN_444_16_INTRA,
++            [TYPE_HT_INTRA]   = H265_PROFILE_HIGH_THROUGHPUT_444_16_INTRA,
++        },
++    },
++};
++
++static int check_flags(const H265ProfileDescriptor *desc,
++                       int chroma, int depth)
++{
++    int errors = 0;
++    if (chroma > CHROMA_MONO && desc->max_monochrome == 1) {
++        av_log(NULL, AV_LOG_ERROR, "%s requires monochrome.\n",
++               desc->name);
++        ++errors;
++    }
++    if (chroma > CHROMA_422 && desc->max_420chroma == 1) {
++        av_log(NULL, AV_LOG_ERROR, "%s requires 4:2:0.\n",
++               desc->name);
++        ++errors;
++    }
++    if (chroma > CHROMA_444 && desc->max_422chroma == 1) {
++        av_log(NULL, AV_LOG_ERROR, "%s requires 4:2:2.\n",
++               desc->name);
++        ++errors;
++    }
++    if (depth > DEPTH_8 && desc->max_8bit == 1) {
++        av_log(NULL, AV_LOG_ERROR, "%s requires 8-bit.\n",
++               desc->name);
++        ++errors;
++    }
++    if (depth > DEPTH_10 && desc->max_10bit == 1) {
++        av_log(NULL, AV_LOG_ERROR, "%s requires 10-bit.\n",
++               desc->name);
++        ++errors;
++    }
++    if (depth > DEPTH_12 && desc->max_12bit == 1) {
++        av_log(NULL, AV_LOG_ERROR, "%s requires 12-bit.\n",
++               desc->name);
++        ++errors;
++    }
++    if (depth > DEPTH_14 && desc->max_14bit == 1) {
++        av_log(NULL, AV_LOG_ERROR, "%s requires 14-bit.\n",
++               desc->name);
++        ++errors;
++    }
++    return errors;
++}
++
++static int check_profile_table(void)
++{
++    // Ensure that the profile table contains every non-still-picture
++    // profile exactly once, and that a profile for a given chroma mode
++    // and depth actually supports that chroma mode and depth.
++    int errors = 0;
++
++    for (int p = H265_PROFILE_MONOCHROME; p < H265_PROFILE_COUNT; p++) {
++        const H265ProfileDescriptor *desc = ff_h265_get_profile(p);
++        int found = 0;
++
++        for (int type= 0; type < TYPE_COUNT; type++) {
++            for (int chroma = 0; chroma < CHROMA_COUNT; chroma++) {
++                for (int depth = 0; depth < DEPTH_COUNT; depth++) {
++                    if (profile_table[chroma][depth][type] == p) {
++                        ++found;
++                        errors += check_flags(desc, chroma, depth);
++                    }
++                }
++            }
++        }
++
++        if (found != 1) {
++            av_log(NULL, AV_LOG_ERROR,
++                   "%s appears %d times in the profile table.\n",
++                   desc->name, found);
++
++            ++errors;
++        }
++    }
++    return errors;
++}
++
++static enum H265Profile get_profile(int type, int chroma, int depth)
++{
++    av_assert0(type   >= 0 && type   < TYPE_COUNT);
++    av_assert0(chroma >= 0 && chroma < CHROMA_COUNT);
++    av_assert0(depth  >= 0 && depth  < DEPTH_COUNT);
++    return profile_table[chroma][depth][type];
++}
++
++static void minimal_ptl_from_desc(H265RawProfileTierLevel *ptl,
++                                  const H265ProfileDescriptor *desc)
++{
++    *ptl = (H265RawProfileTierLevel) {
++        .general_profile_space = 0,
++        .general_profile_idc   = desc->profile_idc,
++        // Tier/interlace/stereo/layering/level flags are ignored in
++        // this test.
++    };
++
++    ptl->general_profile_compatibility_flag[desc->profile_idc] = 1;
++
++#define FLAG(name) do { \
++        ptl->general_ ## name ## _constraint_flag = desc->name; \
++    } while (0)
++
++    FLAG(max_14bit);
++    FLAG(max_12bit);
++    FLAG(max_10bit);
++    FLAG(max_8bit);
++    FLAG(max_422chroma);
++    FLAG(max_420chroma);
++    FLAG(max_monochrome);
++    FLAG(intra);
++    FLAG(one_picture_only);
++    FLAG(lower_bit_rate);
++
++#undef FLAG
++}
++
++static void bprint_ptl(AVBPrint *buf, const H265RawProfileTierLevel *ptl)
++{
++    av_bprintf(buf, "profile_space %d tier %d profile_idc %d",
++               ptl->general_profile_space,
++               ptl->general_tier_flag,
++               ptl->general_profile_idc);
++
++    av_bprintf(buf, " profile_compatibility { ");
++    for (int i = 0; i < 32; i++)
++        av_bprintf(buf, "%d",
++                   ptl->general_profile_compatibility_flag[i]);
++    av_bprintf(buf, " }");
++
++    av_bprintf(buf, " progressive %d interlaced %d",
++               ptl->general_progressive_source_flag,
++               ptl->general_interlaced_source_flag);
++    av_bprintf(buf, " non_packed %d frame_only %d",
++               ptl->general_non_packed_constraint_flag,
++               ptl->general_frame_only_constraint_flag);
++
++#define profile_compatible(x) (ptl->general_profile_idc == (x) || \
++                               ptl->general_profile_compatibility_flag[x])
++    if (profile_compatible(4) || profile_compatible(5) ||
++        profile_compatible(6) || profile_compatible(7) ||
++        profile_compatible(8) || profile_compatible(9) ||
++        profile_compatible(10) || profile_compatible(11)) {
++
++        av_bprintf(buf, " 12bit %d",          ptl->general_max_12bit_constraint_flag);
++        av_bprintf(buf, " 10bit %d",          ptl->general_max_10bit_constraint_flag);
++        av_bprintf(buf, " 8bit %d",           ptl->general_max_8bit_constraint_flag);
++        av_bprintf(buf, " 422chroma %d",      ptl->general_max_422chroma_constraint_flag);
++        av_bprintf(buf, " 420chroma %d",      ptl->general_max_420chroma_constraint_flag);
++        av_bprintf(buf, " monochrome %d",     ptl->general_max_monochrome_constraint_flag);
++        av_bprintf(buf, " intra %d",          ptl->general_intra_constraint_flag);
++        av_bprintf(buf, " one_picture %d",    ptl->general_one_picture_only_constraint_flag);
++        av_bprintf(buf, " lower_bit_rate %d", ptl->general_lower_bit_rate_constraint_flag);
++
++        if (profile_compatible(5) || profile_compatible(9) ||
++            profile_compatible(10) || profile_compatible(11)) {
++            av_bprintf(buf, " 14bit %d", ptl->general_max_14bit_constraint_flag);
++        }
++
++        if (profile_compatible(1) || profile_compatible(2) ||
++            profile_compatible(3) || profile_compatible(4) ||
++            profile_compatible(5) || profile_compatible(9) ||
++            profile_compatible(11)) {
++            av_bprintf(buf, " inbld %d", ptl->general_inbld_flag);
++        }
++    }
++#undef profile_compatible
++
++    av_bprintf(buf, " level %d", ptl->general_level_idc);
++}
++
++
++#define CHECK_COMPATIBILITY(expected, ptl, profile) do { \
++        if (expected == !ff_h265_profile_compatible(ptl, profile)) { \
++            AVBPrint buf; \
++            char *str; \
++            const H265ProfileDescriptor *desc = \
++                ff_h265_get_profile(profile); \
++            av_log(NULL, AV_LOG_ERROR, expected ? \
++                   "Incorrectly incompatible with %s:\n" : \
++                   "Incorrectly compatible with %s:\n", \
++                   desc->name); \
++            av_bprint_init(&buf, 1024, -1); \
++            bprint_ptl(&buf, ptl); \
++            av_bprint_finalize(&buf, &str); \
++            av_log(NULL, AV_LOG_ERROR, "%s\n", str); \
++            return 1; \
++        } \
++    } while (0)
++
++static int check_simple_rext_profiles(void)
++{
++    static const H265RawProfileTierLevel rext_420_8 = {
++        .general_profile_space = 0,
++        .general_profile_idc   = 4,
++        .general_tier_flag     = 0,
++        .general_profile_compatibility_flag[4]    = 1,
++        .general_max_12bit_constraint_flag        = 1,
++        .general_max_10bit_constraint_flag        = 1,
++        .general_max_8bit_constraint_flag         = 1,
++        .general_max_422chroma_constraint_flag    = 1,
++        .general_max_420chroma_constraint_flag    = 1,
++        .general_max_monochrome_constraint_flag   = 0,
++        .general_intra_constraint_flag            = 0,
++        .general_one_picture_only_constraint_flag = 0,
++        .general_lower_bit_rate_constraint_flag   = 1,
++    };
++    static const H265RawProfileTierLevel rext_420_10 = {
++        .general_profile_space = 0,
++        .general_profile_idc   = 4,
++        .general_tier_flag     = 0,
++        .general_profile_compatibility_flag[4]    = 1,
++        .general_max_12bit_constraint_flag        = 1,
++        .general_max_10bit_constraint_flag        = 1,
++        .general_max_8bit_constraint_flag         = 0,
++        .general_max_422chroma_constraint_flag    = 1,
++        .general_max_420chroma_constraint_flag    = 1,
++        .general_max_monochrome_constraint_flag   = 0,
++        .general_intra_constraint_flag            = 0,
++        .general_one_picture_only_constraint_flag = 0,
++        .general_lower_bit_rate_constraint_flag   = 1,
++    };
++    static const H265RawProfileTierLevel rext_422_8 = {
++        .general_profile_space = 0,
++        .general_profile_idc   = 4,
++        .general_tier_flag     = 0,
++        .general_profile_compatibility_flag[4]    = 1,
++        .general_max_12bit_constraint_flag        = 1,
++        .general_max_10bit_constraint_flag        = 1,
++        .general_max_8bit_constraint_flag         = 1,
++        .general_max_422chroma_constraint_flag    = 1,
++        .general_max_420chroma_constraint_flag    = 0,
++        .general_max_monochrome_constraint_flag   = 0,
++        .general_intra_constraint_flag            = 0,
++        .general_one_picture_only_constraint_flag = 0,
++        .general_lower_bit_rate_constraint_flag   = 1,
++    };
++
++    CHECK_COMPATIBILITY(0, &rext_420_8, H265_PROFILE_MAIN);
++    CHECK_COMPATIBILITY(0, &rext_420_8, H265_PROFILE_MAIN_10);
++    CHECK_COMPATIBILITY(1, &rext_420_8, H265_PROFILE_MAIN_12);
++    CHECK_COMPATIBILITY(1, &rext_420_8, H265_PROFILE_MAIN_422_10);
++    CHECK_COMPATIBILITY(1, &rext_420_8, H265_PROFILE_MAIN_444);
++    CHECK_COMPATIBILITY(1, &rext_420_8, H265_PROFILE_MAIN_444_10);
++
++    CHECK_COMPATIBILITY(0, &rext_420_10, H265_PROFILE_MAIN);
++    CHECK_COMPATIBILITY(0, &rext_420_10, H265_PROFILE_MAIN_10);
++    CHECK_COMPATIBILITY(1, &rext_420_10, H265_PROFILE_MAIN_12);
++    CHECK_COMPATIBILITY(1, &rext_420_10, H265_PROFILE_MAIN_422_10);
++    CHECK_COMPATIBILITY(0, &rext_420_10, H265_PROFILE_MAIN_444);
++    CHECK_COMPATIBILITY(1, &rext_420_10, H265_PROFILE_MAIN_444_10);
++
++    CHECK_COMPATIBILITY(0, &rext_422_8, H265_PROFILE_MAIN);
++    CHECK_COMPATIBILITY(0, &rext_422_8, H265_PROFILE_MAIN_10);
++    CHECK_COMPATIBILITY(0, &rext_422_8, H265_PROFILE_MAIN_12);
++    CHECK_COMPATIBILITY(1, &rext_422_8, H265_PROFILE_MAIN_422_10);
++    CHECK_COMPATIBILITY(1, &rext_422_8, H265_PROFILE_MAIN_444);
++    CHECK_COMPATIBILITY(1, &rext_422_8, H265_PROFILE_MAIN_444_10);
++
++    return 0;
++}
++
++int main(void)
++{
++    if (check_profile_table())
++        return 1;
++
++    if (check_simple_rext_profiles())
++        return 1;
++
++    // Check compatibility pairs between all profiles of the same type.
++    // Profile A should be compatibile with a profile B which supports
++    // at least the same chroma subsampling and at least the same depth
++    // (including if A and B are the same).
++    for (int type = TYPE_REXT_INTER; type < TYPE_COUNT; type++) {
++        for (int chroma_a = 0; chroma_a < CHROMA_COUNT; chroma_a++) {
++            for (int depth_a = 0; depth_a < DEPTH_COUNT; depth_a++) {
++                enum H265Profile profile_a;
++                const H265ProfileDescriptor *desc_a;
++                H265RawProfileTierLevel ptl_a;
++
++                profile_a = get_profile(type, chroma_a, depth_a);
++                if (profile_a == H265_PROFILE_INVALID)
++                    continue;
++                desc_a = ff_h265_get_profile(profile_a);
++                minimal_ptl_from_desc(&ptl_a, desc_a);
++
++                for (int chroma_b = 0; chroma_b < CHROMA_COUNT; chroma_b++) {
++                    for (int depth_b = 0; depth_b < DEPTH_COUNT; depth_b++) {
++                        enum H265Profile profile_b;
++                        const H265ProfileDescriptor *desc_b;
++                        int expect_compatible = (depth_b  >= depth_a &&
++                                                 chroma_b >= chroma_a);
++
++                        profile_b = get_profile(type, chroma_b, depth_b);
++                        if (profile_b == H265_PROFILE_INVALID)
++                            continue;
++                        desc_b = ff_h265_get_profile(profile_b);
++
++                        av_log(NULL, AV_LOG_INFO,
++                               "%d:  A (%s: %d,%d)  B (%s: %d,%d)\n", type,
++                               desc_a->name, chroma_a, depth_a,
++                               desc_b->name, chroma_b, depth_b);
++                        CHECK_COMPATIBILITY(expect_compatible,
++                                            &ptl_a, profile_b);
++                    }
++                }
++            }
++        }
++    }
++
++    return 0;
++}
+diff --git a/tests/fate/libavcodec.mak b/tests/fate/libavcodec.mak
+index 1a5694fa5f..a47e8b8237 100644
+--- a/tests/fate/libavcodec.mak
++++ b/tests/fate/libavcodec.mak
+@@ -71,6 +71,11 @@ fate-h265-levels: libavcodec/tests/h265_levels$(EXESUF)
+ fate-h265-levels: CMD = run libavcodec/tests/h265_levels$(EXESUF)
+ fate-h265-levels: REF = /dev/null
+ 
++FATE_LIBAVCODEC-$(CONFIG_HEVC_METADATA_BSF) += fate-h265-profiles
++fate-h265-profiles: libavcodec/tests/h265_profiles$(EXESUF)
++fate-h265-profiles: CMD = run libavcodec/tests/h265_profiles$(EXESUF)
++fate-h265-profiles: REF = /dev/null
++
+ FATE_LIBAVCODEC-$(CONFIG_IIRFILTER) += fate-iirfilter
+ fate-iirfilter: libavcodec/tests/iirfilter$(EXESUF)
+ fate-iirfilter: CMD = run libavcodec/tests/iirfilter$(EXESUF)
