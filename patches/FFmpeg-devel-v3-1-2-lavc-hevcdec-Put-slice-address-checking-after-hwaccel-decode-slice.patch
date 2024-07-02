@@ -1,0 +1,163 @@
+From patchwork Mon Jun 24 06:23:30 2024
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: "Wang, Fei W" <fei.w.wang-at-intel.com@ffmpeg.org>
+X-Patchwork-Id: 50112
+Delivered-To: ffmpegpatchwork2@gmail.com
+Received: by 2002:a59:ae71:0:b0:482:c625:d099 with SMTP id w17csp1812692vqz;
+        Sun, 23 Jun 2024 23:23:28 -0700 (PDT)
+X-Forwarded-Encrypted: i=2;
+ AJvYcCU0DZd5q1KcpiUw++b2pwcKfez9a0CVOkqTkKMRYBaFdt9b1YiP8+aRcoXPrgWp1TFV/WvdSqyOdr8cN6zzEewkdOyMQNEcu7xWAA==
+X-Google-Smtp-Source: 
+ AGHT+IFdl/kFTH6PthlfYJ3Z4AID7vR6JDFzwTyGg8I+NhfIi4Vz8OrNaSMZq7FM8tlTz8Ma2tJ9
+X-Received: by 2002:a05:651c:1a1e:b0:2ec:59b6:ad71 with SMTP id
+ 38308e7fff4ca-2ec59b6ae47mr29678711fa.40.1719210208367;
+        Sun, 23 Jun 2024 23:23:28 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1719210208; cv=none;
+        d=google.com; s=arc-20160816;
+        b=hKOFJrt1hBOccwyFbH5nFZsn0/hgVdblbGDGg7wkImXzfRz+soWARYJGtTxnrZgsDk
+         KP0ZmqE47j2Xmlq7z/7owVGqYZxQJvHmpvk/mHCA26ze7YCBBoH0O+uUaTFHzPrQZUSb
+         4V1dtxH3hFdOSydJKJ/xy4/6RgXSdZpES5jgmQ6l6MPuLWttE2u9jCJ+WAVpXPaj5EL4
+         h1h2rMt3CIfFCyTTnedT6ETYwF627x+ccs9+PpDAWsaFwd6BF9Fu3BLTicYpeNcTQnPE
+         DTHkS4pOvJA6Vli0jZxkf0sG7JYkTUNNonZkVrvKsGOm0WVkGBAJYQeXbmPn0U6tzu5U
+         2teQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=sender:errors-to:content-transfer-encoding:cc:reply-to
+         :list-subscribe:list-help:list-post:list-archive:list-unsubscribe
+         :list-id:precedence:subject:mime-version:message-id:date:to:from
+         :dkim-signature:delivered-to;
+        bh=sceSzYxQNPYWljmAMdtmh0DZ2BLwY0dkzv1tLNp+1Ag=;
+        fh=i4ESP4ZRFDcfYfwXKWpOXjc2YhmIGuOsCfZUnwNO0gc=;
+        b=wOP1lf4FxIzN0z58qXy0GqfrZnhdRor5rdORrIxZgZu601xL40ieBr1QpTxFo73hwI
+         n2Jv3Z+CQsKl83CsO93kjlZXGKffpY5zEDPXkbobRE9BACKyIv6QRo6ozqlcy7oUXFpC
+         UKyWmlFpUsBswZuWjReH2V9mv4EhfPFg+Hie+h1bJ5+iwjVZfYQa+ZlPjomxiEBJbtlA
+         95/bGj7Jp36LGOCog1ijJW87B5YyvzCTrApoiAskndzWpuXyEBXJAm288PpH6kv+VVtM
+         30AFMZsUsWoSVJEYT5i3QHNM+pAuTfrTSg9/v+pZTMKjYZtJi9JOdY4Ra2IMKk8VeftG
+         QYlw==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@intel.com
+ header.s=Intel header.b=TDJodC4n;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org
+Return-Path: <ffmpeg-devel-bounces@ffmpeg.org>
+Received: from ffbox0-bg.mplayerhq.hu (ffbox0-bg.ffmpeg.org. [79.124.17.100])
+        by mx.google.com with ESMTP id
+ 4fb4d7f45d1cf-57d30af43a9si3284417a12.501.2024.06.23.23.23.27;
+        Sun, 23 Jun 2024 23:23:28 -0700 (PDT)
+Received-SPF: pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender) client-ip=79.124.17.100;
+Authentication-Results: mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@intel.com
+ header.s=Intel header.b=TDJodC4n;
+       spf=pass (google.com: domain of ffmpeg-devel-bounces@ffmpeg.org
+ designates 79.124.17.100 as permitted sender)
+ smtp.mailfrom=ffmpeg-devel-bounces@ffmpeg.org
+Received: from [127.0.1.1] (localhost [127.0.0.1])
+	by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTP id 0E78D68D627;
+	Mon, 24 Jun 2024 09:23:25 +0300 (EEST)
+X-Original-To: ffmpeg-devel@ffmpeg.org
+Delivered-To: ffmpeg-devel@ffmpeg.org
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+ by ffbox0-bg.mplayerhq.hu (Postfix) with ESMTPS id 975EA68CDB0
+ for <ffmpeg-devel@ffmpeg.org>; Mon, 24 Jun 2024 09:23:17 +0300 (EEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1719210202; x=1750746202;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=4C2nKbqYs1JE95wfDUuqQtjDfA+ff/Wmf3K/1mddnV8=;
+ b=TDJodC4nH9J1iGPkIpauQFdyvqOHki27BeTmITQiwIff+NAYAfPRW3tb
+ ++LMYewYw6KiWGXEwLRagozxXXSLelU7ntkmPrmOyBUKOiY2/0E6DeuAV
+ Dn0r0/2YdncJsBgJBDPi7StlbWXSfbG6lpdFRW0b9BpLPoJEMjzyoRMKb
+ 330ZcCzcdHsvvWg+6bunxnTof5yOwyQCk++PFJvgrbMPUTZSsovT9nD6z
+ RyJMtRFqt87NE4NMyV4nOsSaqogICLxB9HVp/q0UtiEOHMPzl6mqkPrST
+ u3Qd3nLS+sEIdIHV61xVoFskK1X4mZNmCiFAwpTJYiuAvgOsN1XBVUEDM w==;
+X-CSE-ConnectionGUID: eo6rBea1TJiiF4ReVAEdMw==
+X-CSE-MsgGUID: 4SuNyuTGSpC9aZU8o1hNOA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11112"; a="15990801"
+X-IronPort-AV: E=Sophos;i="6.08,261,1712646000"; d="scan'208";a="15990801"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+ by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 23 Jun 2024 23:23:15 -0700
+X-CSE-ConnectionGUID: Z9Sulu+pTM28TGhjjpmElg==
+X-CSE-MsgGUID: oabpWc5JStSzQOEOJARv1A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,261,1712646000"; d="scan'208";a="48144668"
+Received: from unknown (HELO t-dg2.sh.intel.com) ([10.239.159.57])
+ by orviesa005.jf.intel.com with ESMTP; 23 Jun 2024 23:23:15 -0700
+From: fei.w.wang-at-intel.com@ffmpeg.org
+To: ffmpeg-devel@ffmpeg.org
+Date: Mon, 24 Jun 2024 14:23:30 +0800
+Message-Id: <20240624062331.189212-1-fei.w.wang@intel.com>
+X-Mailer: git-send-email 2.34.1
+MIME-Version: 1.0
+Subject: [FFmpeg-devel] [PATCH v3 1/2] lavc/hevcdec: Put slice address
+ checking after hwaccel decode slice
+X-BeenThere: ffmpeg-devel@ffmpeg.org
+X-Mailman-Version: 2.1.29
+Precedence: list
+List-Id: FFmpeg development discussions and patches <ffmpeg-devel.ffmpeg.org>
+List-Unsubscribe: <https://ffmpeg.org/mailman/options/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=unsubscribe>
+List-Archive: <https://ffmpeg.org/pipermail/ffmpeg-devel>
+List-Post: <mailto:ffmpeg-devel@ffmpeg.org>
+List-Help: <mailto:ffmpeg-devel-request@ffmpeg.org?subject=help>
+List-Subscribe: <https://ffmpeg.org/mailman/listinfo/ffmpeg-devel>,
+ <mailto:ffmpeg-devel-request@ffmpeg.org?subject=subscribe>
+Reply-To: FFmpeg development discussions and patches <ffmpeg-devel@ffmpeg.org>
+Cc: fei.w.wang@intel.com
+Errors-To: ffmpeg-devel-bounces@ffmpeg.org
+Sender: "ffmpeg-devel" <ffmpeg-devel-bounces@ffmpeg.org>
+X-TUID: uvshR7/lfTSP
+
+From: Fei Wang <fei.w.wang@intel.com>
+
+Slice address tab only been updated in software decode slice data.
+
+Fixes hwaccel decoding after d725c737fe2a19091b481d4d115fd939e0a674b2.
+
+Signed-off-by: Fei Wang <fei.w.wang@intel.com>
+---
+ libavcodec/hevc/hevcdec.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/libavcodec/hevc/hevcdec.c b/libavcodec/hevc/hevcdec.c
+index 1d2e53afc3..39beb7e4dc 100644
+--- a/libavcodec/hevc/hevcdec.c
++++ b/libavcodec/hevc/hevcdec.c
+@@ -2770,15 +2770,6 @@ static int decode_slice_data(HEVCContext *s, const H2645NAL *nal, GetBitContext
+     const HEVCPPS *pps = s->pps;
+     int ret;
+ 
+-    if (s->sh.dependent_slice_segment_flag) {
+-        int ctb_addr_ts = pps->ctb_addr_rs_to_ts[s->sh.slice_ctb_addr_rs];
+-        int prev_rs = pps->ctb_addr_ts_to_rs[ctb_addr_ts - 1];
+-        if (s->tab_slice_address[prev_rs] != s->sh.slice_addr) {
+-            av_log(s->avctx, AV_LOG_ERROR, "Previous slice segment missing\n");
+-            return AVERROR_INVALIDDATA;
+-        }
+-    }
+-
+     if (!s->sh.dependent_slice_segment_flag && s->sh.slice_type != HEVC_SLICE_I) {
+         ret = ff_hevc_slice_rpl(s);
+         if (ret < 0) {
+@@ -2799,6 +2790,15 @@ static int decode_slice_data(HEVCContext *s, const H2645NAL *nal, GetBitContext
+         return AVERROR_PATCHWELCOME;
+     }
+ 
++    if (s->sh.dependent_slice_segment_flag) {
++        int ctb_addr_ts = pps->ctb_addr_rs_to_ts[s->sh.slice_ctb_addr_rs];
++        int prev_rs = pps->ctb_addr_ts_to_rs[ctb_addr_ts - 1];
++        if (s->tab_slice_address[prev_rs] != s->sh.slice_addr) {
++            av_log(s->avctx, AV_LOG_ERROR, "Previous slice segment missing\n");
++            return AVERROR_INVALIDDATA;
++        }
++    }
++
+     s->local_ctx[0].first_qp_group = !s->sh.dependent_slice_segment_flag;
+ 
+     if (!pps->cu_qp_delta_enabled_flag)
